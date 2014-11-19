@@ -1,0 +1,9 @@
+{
+    "name": "sds/synthesizer",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "SDS\\Synthesizer\\": "src"
+        }
+    }
+}
