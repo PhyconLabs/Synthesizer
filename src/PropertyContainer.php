@@ -69,7 +69,7 @@ class PropertyContainer implements Iterator
     
     public function getProperty($name)
     {
-        return isset($this->properties[$name]) ? $this->properties[$name] : null;
+        return $this->hasProperty($name) ? $this->properties[$name] : null;
     }
     
     public function hasProperty($name)

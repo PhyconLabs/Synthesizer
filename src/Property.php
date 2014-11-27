@@ -50,8 +50,9 @@ class Property
                 if ($method->isPublic() && !$method->isStatic()) {
                     $options[$optionName] = $method->getName();
                 }
+            } catch (ReflectionException $e) {
+                // do nothing
             }
-            catch (ReflectionException $e) {}
         }
     }
     
@@ -74,14 +75,18 @@ class Property
     
     public function &invokeGetter()
     {
-        if (isset($this->getter)) {
-            if (!isset($this->instance)) {
+        $getter = $this->getGetter();
+        
+        if (isset($getter)) {
+            $instance = $this->getInstance();
+            
+            if (!isset($instance)) {
                 throw new Exceptions\NoInstanceException(
                     "Can't invoke getter because property instance isn't set."
                 );
             }
             
-            return $this->instance->{$this->getter}($this);
+            return $instance->{$getter}();
         } else {
             $value = $this->getValue();
             
@@ -95,8 +100,18 @@ class Property
     
     public function invokeSetter($value)
     {
-        if (isset($this->setter)) {
-            //
+        $setter = $this->getSetter();
+        
+        if (isset($setter)) {
+            $instance = $this->getInstance();
+            
+            if (!isset($instance)) {
+                throw new Exceptions\NoInstanceException(
+                    "Can't invoke setter because property instance isn't set."
+                );
+            }
+            
+            $instance->{$setter}($value);
         } else {
             $this->setValue($value);
         }
@@ -145,13 +160,18 @@ class Property
         return $this->isMutable;
     }
     
-    public function getMeta($key = null)
+    public function getMeta($key = null, $default = null)
     {
         if (isset($key)) {
-            //
+            return array_key_exists($key, $this->meta) ? $this->meta[$key] : $default;
         } else {
             return $this->meta;
         }
+    }
+    
+    public function getInstance()
+    {
+        return $this->instance;
     }
     
     public function makeDirty()
@@ -247,6 +267,14 @@ class Property
     
     protected function setInstance($instance)
     {
+        if (!is_object($instance)) {
+            $type = gettype($instance);
+            
+            throw new InvalidInstanceException(
+                "Property instance must be an object. `{$type}` given."
+            );
+        }
+        
         $this->instance = $instance;
         
         return $this;
