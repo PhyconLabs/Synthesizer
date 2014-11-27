@@ -5,5 +5,5 @@ use \Exception;
 
 class SynthesizerException extends Exception
 {
-	// empty
+    // empty
 }

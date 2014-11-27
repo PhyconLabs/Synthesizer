@@ -30,10 +30,8 @@ trait Synthesizable
     
     public function &__get($property)
     {
-        $properties = $this->getInstanceSynthesizedProperties();
-        
-        if ($properties->hasProperty($property)) {
-            return $properties->getProperty($property)->invokeGetter();
+        if ($this->hasInstanceSynthesizedProperty($property)) {
+            return $this->getInstanceSynthesizedProperty($property)->invokeGetter();
         } else {
             if ($this->hasParentSynthesizerMethod("__get")) {
                 return parent::__get($property);
@@ -49,10 +47,8 @@ trait Synthesizable
     
     public function __set($property, $value)
     {
-        $properties = $this->getInstanceSynthesizedProperties();
-        
-        if ($properties->hasProperty($property)) {
-            $property = $properties->getProperty($property);
+        if ($this->hasInstanceSynthesizedProperty($property)) {
+            $property = $this->getInstanceSynthesizedProperty($property);
             
             if (!$property->isMutable()) {
                 $class = get_class($this);
@@ -91,9 +87,7 @@ trait Synthesizable
     
     public function __unset($property)
     {
-        $properties = $this->getInstanceSynthesizedProperties();
-        
-        if ($properties->hasProperty($property)) {
+        if ($this->hasInstanceSynthesizedProperty($property)) {
             $this->__set($property, null);
         } else {
             if ($this->hasParentSynthesizerMethod("__unset")) {
@@ -111,9 +105,8 @@ trait Synthesizable
         if (in_array($type, [ "get", "set" ])) {
             $property = substr($method, 3);
             $property = lcfirst($property);
-            $properties = $this->getInstanceSynthesizedProperties();
             
-            if ($properties->hasProperty($property)) {
+            if ($this->hasInstanceSynthesizedProperty($property)) {
                 switch ($type) {
                     case "get":
                         return $this->__get($property);
@@ -123,13 +116,13 @@ trait Synthesizable
                             $class = get_called_class();
                             
                             throw new BadMethodCallException(
-                                "Setter `{$class}::\${$method}()` requires one argument that contains value for property."
+                                "Setter `{$class}::{$method}()` requires one argument that contains value for property."
                             );
                         }
                         
                         $this->__set($property, $arguments[0]);
                         
-                        break;
+                        return $this;
                 }
             }
         }
@@ -140,7 +133,7 @@ trait Synthesizable
             $class = get_called_class();
             
             throw new Exceptions\BadMethodException(
-                "Method `{$class}::\${$method}()` doesn't exist."
+                "Method `{$class}::{$method}()` doesn't exist."
             );
         }
     }
@@ -159,6 +152,28 @@ trait Synthesizable
         }
         
         return $this->instanceSynthesizedProperties;
+    }
+    
+    protected function getInstanceSynthesizedProperty($name)
+    {
+        $properties = $this->getInstanceSynthesizedProperties();
+        
+        if ($properties->hasProperty($name)) {
+            return $properties->getProperty($name);
+        } else {
+            $class = get_called_class();
+            
+            throw new Exceptions\BadPropertyException(
+                "Property `{$class}::\${$property}` doesn't exist."
+            );
+        }
+    }
+    
+    protected function hasInstanceSynthesizedProperty($name)
+    {
+        $properties = $this->getInstanceSynthesizedProperties();
+        
+        return $properties->hasProperty($name);
     }
     
     protected function hasParentSynthesizerMethod($method)

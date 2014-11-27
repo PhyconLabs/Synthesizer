@@ -5,7 +5,7 @@ use \Closure;
 use \Iterator;
 use \ReflectionClass;
 use \ReflectionProperty;
-use \SDS\ClassSupport\Iterator\PropertyArrayIterable;
+use \SDS\ClassSupport\Iterators\PropertyArrayIterable;
 
 class PropertyContainer implements Iterator
 {

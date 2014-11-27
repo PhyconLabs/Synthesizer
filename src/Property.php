@@ -88,7 +88,7 @@ class Property
             
             return $instance->{$getter}();
         } else {
-            $value = $this->getValue();
+            $value =& $this->getValue();
             
             if (!isset($value)) {
                 $value = $this->getDefaultValue();

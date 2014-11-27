@@ -1,6 +1,14 @@
 {
     "name": "sds/synthesizer",
-    "require": {},
+    "require": {
+        "sds/class-support": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:SDSG/ClassSupport.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "SDS\\Synthesizer\\": "src"

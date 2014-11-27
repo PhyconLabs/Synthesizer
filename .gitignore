@@ -1,0 +1,9 @@
+# Composer
+vendor
+composer.lock
+
+# Common
+.DS_Store
+
+# Sublime Text
+*.sublime-*
